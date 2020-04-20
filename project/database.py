@@ -1,12 +1,3 @@
-"""
-
-Задача:
- Реализовать как минимум один порождающий паттерн в домашнем приложении.
-
- Использован паттерн Одиночка
-
-"""
-
 import psycopg2
 
 
@@ -32,6 +23,13 @@ class MediaDB(metaclass=SingletonMeta):
         self.database = 'filmLib'
         self.table_name = 'film_lib'
 
+    def psycopg2_connect(self):
+        return psycopg2.connect(database=self.database,
+                                   user=self.user,
+                                   password=self.password,
+                                   host=self.host,
+                                   port=self.port)
+
     def get_column(self, column):
         db_conn = psycopg2.connect(database=self.database,
                                    user=self.user,
@@ -42,8 +40,26 @@ class MediaDB(metaclass=SingletonMeta):
         cur = db_conn.cursor()
         # TODO заменить сортировку - по названию
         cur.execute(f'SELECT {column} FROM {self.table_name} ORDER BY id')
+        results = [r[0] for r in cur.fetchall()]
+        return results
+
+    def get_films(self):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        # TODO заменить сортировку - по названию
+        cur.execute(f'SELECT id, name FROM {self.table_name} ORDER BY id')
+        results = {r[1]: r[0] for r in cur.fetchall()}
+        return results
+
+    def get_film_info(self, id_db):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        # TODO заменить сортировку - по названию
+        cur.execute(f'SELECT id, our_lib, moms_lib, categories_id FROM {self.table_name} WHERE id = {id_db}')
         results = cur.fetchall()
-        return list(results)
+        return results
 
     def change_row(self, id_db, **kwargs):
         db_conn = psycopg2.connect(database=self.database,
@@ -63,4 +79,4 @@ if __name__ == "__main__":
     database = MediaDB()
     # database.change_row('1820', name='ljlh111h', our_lib='false')
     # print(get_column('*')[13])
-    print(database.get_column('*'))
+    print(database.get_films())
