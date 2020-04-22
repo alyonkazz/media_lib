@@ -43,22 +43,22 @@ class MediaDB(metaclass=SingletonMeta):
         results = [r[0] for r in cur.fetchall()]
         return results
 
-    def get_films(self):
+    def get_videos(self):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
         # TODO заменить сортировку - по названию
         cur.execute(f'SELECT id, name FROM {self.table_name} ORDER BY id')
-        results = {r[1]: r[0] for r in cur.fetchall()}
+        results = {r[0]: r[1] for r in cur.fetchall()}
         return results
 
-    def get_film_info(self, id_db):
+    def get_video_info(self, id_db):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
         # TODO заменить сортировку - по названию
         cur.execute(f'SELECT id, our_lib, moms_lib, categories_id FROM {self.table_name} WHERE id = {id_db}')
-        results = cur.fetchall()
+        results = cur.fetchall()[0]
         return results
 
     def change_row(self, id_db, **kwargs):
@@ -77,6 +77,7 @@ class MediaDB(metaclass=SingletonMeta):
 
 if __name__ == "__main__":
     database = MediaDB()
-    # database.change_row('1820', name='ljlh111h', our_lib='false')
+    database.change_row('1816', name='ljlh111h', our_lib='false', categories_id='2')
     # print(get_column('*')[13])
-    print(database.get_films())
+    print(database.get_videos())
+    print(database.get_video_info(1816))
