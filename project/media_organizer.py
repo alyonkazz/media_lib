@@ -20,7 +20,6 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         self.video_index = None
         print(self.video_index)
 
-
         self.listWidget_library.itemClicked.connect(self.library_item_clicked_event)
         self.checkBox_autosave.stateChanged.connect(self.set_auto_save)
         self.pushButton_save.clicked.connect(self.change_video_info)
@@ -77,11 +76,14 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
             
         self.database.change_row(
             list(self.videos)[self.video_index],
-            # name=name,
             our_lib=our_lib,
             moms_lib=moms_lib,
             categories_id=categories_id
         )
+
+    def rename_video(self):
+        # TODO добавить проверку имени на наличие дубликатов
+        pass
         
         print(list(self.videos)[self.video_index])
 
