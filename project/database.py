@@ -19,7 +19,7 @@ class MediaDB(metaclass=SingletonMeta):
         self.host = '192.168.2.8'
         self.port = '5432'
         self.user = "postgres"
-        self.password = '200289'
+        self.password = ''
         self.database = 'filmLib'
         self.table_name = 'film_lib'
 
@@ -81,7 +81,7 @@ class MediaDB(metaclass=SingletonMeta):
 if __name__ == "__main__":
     database = MediaDB()
     new_row = {
-        'name': 'new_name',
+        'name': 'Aristocats.1970.BDRip-AVC.Rus.Ukr.Eng.mkv',
         'categories_id': '1'
     }
 
