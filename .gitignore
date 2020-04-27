@@ -1,3 +1,4 @@
 /project/*.ui
 /venv/
 /project/test.py
+/project/config.json

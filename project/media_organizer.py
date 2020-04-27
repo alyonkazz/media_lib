@@ -3,7 +3,7 @@ import os  # Отсюда нам понадобятся методы для от
 from PyQt5 import QtWidgets
 
 from gui_main_window import Ui_Dialog as Design
-from database import MediaDB
+from db_exchange import MediaDB
 
 
 class MediaOrganizer(QtWidgets.QMainWindow, Design):

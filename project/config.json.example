@@ -1,0 +1,10 @@
+{
+  "postgres": {
+    "host": "",
+    "port": "",
+    "user": "",
+    "password": "",
+    "db": "",
+    "table_name": ""
+  }
+}

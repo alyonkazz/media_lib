@@ -59,6 +59,14 @@ class MediaDB(metaclass=SingletonMeta):
         results = {r[0]: r[1] for r in cur.fetchall()}
         return results
 
+    def get_videos_by_category(self, category_id):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        cur.execute(f'SELECT id, name FROM {self.table_name} WHERE categories_id = {category_id} ORDER BY id')
+        results = {r[0]: r[1] for r in cur.fetchall()}
+        return results
+
     def get_video_info(self, id_db):
         db_conn = self.psycopg2_connect()
 
