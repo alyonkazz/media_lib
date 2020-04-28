@@ -76,12 +76,12 @@ class MediaDB(metaclass=SingletonMeta):
         results = cur.fetchall()[0]
         return results
 
-    def change_row(self, id_db, **kwargs):
+    def change_row(self, video_id, changes_dict):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        for k, v in kwargs.items():
-            cur.execute(f"UPDATE {self.table_name} SET {k} = '{v}' WHERE id = {id_db};")
+        changes_str = ', '.join(k + f' = {changes_dict[k]}' for k in changes_dict)
+        cur.execute(f"UPDATE {self.table_name} SET {changes_str} WHERE id = {video_id};")
         db_conn.commit()
         db_conn.close()
 
@@ -99,8 +99,23 @@ if __name__ == "__main__":
     # print(columns)
     # print(list(new_row_dict.keys())[0])
 
-    database.insert_row(new_row)
-    # database.change_row('1846', name='ljlh111h', our_lib='false', categories_id='2')
+    # database.insert_row(new_row)
+
+    changes_dict = {
+        "name": "5555",
+        "our_lib": "false",
+        "moms_lib": "false",
+        "categories_id": "2"
+    }
+    changes_dict = str(changes_dict)
+    import json
+    changes_dict = json.dumps(changes_dict)
+    print(changes_dict)
+    database.change_row('1859', changes_dict)
+    # database.change_row('1859', name='222222222', our_lib='false', categories_id='2')
+
+    # database.change_row('1846', {name = 'ljlh111h', our_lib = 'false', categories_id = '2'})
+
     # print(get_column('*')[13])
     # print(database.get_videos())
     # print(database.get_video_info(1816))
