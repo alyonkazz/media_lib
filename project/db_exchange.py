@@ -22,6 +22,7 @@ class MediaDB(metaclass=SingletonMeta):
         self.password = ''
         self.database = 'filmLib'
         self.table_name = 'film_lib'
+        self.table_categories = 'categories'
 
     def psycopg2_connect(self):
         return psycopg2.connect(database=self.database,
@@ -34,9 +35,12 @@ class MediaDB(metaclass=SingletonMeta):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        columns = ', '.join(tuple(new_row_dict.keys()))
-        values = tuple(new_row_dict.values())
-        do_it = f"INSERT INTO {self.table_name} ({columns}) VALUES {values};"
+        columns = ', '.join(new_row_dict.keys())
+        # TODO переделать на изящненько
+        values = '\", \"'.join(new_row_dict.values())
+        values = values.replace('\'', '\'\'').replace('\"', '\'')
+
+        do_it = f"INSERT INTO {self.table_name} ({columns}) VALUES ('{values}');"
         cur.execute(do_it)
         db_conn.commit()
         db_conn.close()
@@ -47,6 +51,14 @@ class MediaDB(metaclass=SingletonMeta):
         cur = db_conn.cursor()
         # TODO заменить сортировку - по названию
         cur.executemany(f'SELECT {column} FROM {self.table_name} ORDER BY id')
+        results = [r[0] for r in cur.fetchall()]
+        return results
+
+    def get_video_path_folders(self):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        cur.execute(f'SELECT categories_path FROM {self.table_categories} ORDER BY id')
         results = [r[0] for r in cur.fetchall()]
         return results
 
@@ -81,7 +93,7 @@ class MediaDB(metaclass=SingletonMeta):
 
         cur = db_conn.cursor()
         changes_str = ', '.join(k + f' = {changes_dict[k]}' for k in changes_dict)
-        cur.execute(f"UPDATE {self.table_name} SET {changes_str} WHERE id = {video_id};")
+        cur.execute(f'UPDATE {self.table_name} SET {changes_str} WHERE id = {video_id};')
         db_conn.commit()
         db_conn.close()
 
@@ -89,29 +101,20 @@ class MediaDB(metaclass=SingletonMeta):
 if __name__ == "__main__":
     database = MediaDB()
     new_row = {
-        'name': 'Aristocats.1970.BDRip-AVC.Rus.Ukr.Eng.mkv',
+        'name': "Dredd.2012.HDRip.XviD.2200MB. rip by [Assassin's Creed]",
         'categories_id': '1'
     }
 
-    # columns = ', '.join(map(str, tuple(new_row_dict.keys())))
-    # values = ', '.join(tuple(new_row_dict.values()))
-    # print(f"-- INSERT INTO fghfgh ({columns}) VALUES ({values});")
-    # print(columns)
-    # print(list(new_row_dict.keys())[0])
+    database.insert_row(new_row)
 
-    # database.insert_row(new_row)
-
-    changes_dict = {
-        "name": "5555",
-        "our_lib": "false",
-        "moms_lib": "false",
-        "categories_id": "2"
-    }
-    changes_dict = str(changes_dict)
-    import json
-    changes_dict = json.dumps(changes_dict)
-    print(changes_dict)
-    database.change_row('1859', changes_dict)
+    # changes_dict = {
+    #     # "name": "5555",
+    #     "our_lib": "false",
+    #     "moms_lib": "false",
+    #     "categories_id": "2"
+    # }
+    # print(changes_dict)
+    # database.change_row('1858', changes_dict)
     # database.change_row('1859', name='222222222', our_lib='false', categories_id='2')
 
     # database.change_row('1846', {name = 'ljlh111h', our_lib = 'false', categories_id = '2'})
