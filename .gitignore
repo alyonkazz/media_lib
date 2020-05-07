@@ -2,3 +2,4 @@
 /venv/
 /project/test.py
 /project/config.json
+/project/logs/*.log

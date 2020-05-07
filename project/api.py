@@ -45,6 +45,5 @@ class APIMediaLib(Resource):
 
 
 api.add_resource(APIMediaLib, '/bar')
-# api.add_resource(ApiV1, "/")
 if __name__ == '__main__':
     app.run(debug=True)

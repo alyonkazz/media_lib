@@ -1,4 +1,8 @@
+import json
+
 import psycopg2
+
+path_to_json_config = 'config.json'
 
 
 class SingletonMeta(type):
@@ -16,20 +20,21 @@ class SingletonMeta(type):
 
 class MediaDB(metaclass=SingletonMeta):
     def __init__(self):
-        self.host = '192.168.2.8'
-        self.port = '5432'
-        self.user = "postgres"
-        self.password = ''
-        self.database = 'filmLib'
-        self.table_name = 'film_lib'
-        self.table_categories = 'categories'
+        with open(path_to_json_config, 'r') as f:
+            data = json.loads(f.read())
+            self.host = data['postgres']['host']
+            self.port = data['postgres']['port']
+            self.user = data['postgres']['user']
+            self.password = data['postgres']['password']
+            self.database = data['postgres']['database']
+            self.table_name = data['postgres']['table_media_lib']
 
     def psycopg2_connect(self):
         return psycopg2.connect(database=self.database,
-                                   user=self.user,
-                                   password=self.password,
-                                   host=self.host,
-                                   port=self.port)
+                                user=self.user,
+                                password=self.password,
+                                host=self.host,
+                                port=self.port)
 
     def insert_row(self, new_row_dict):
         db_conn = self.psycopg2_connect()
