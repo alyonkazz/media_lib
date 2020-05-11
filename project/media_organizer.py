@@ -1,9 +1,11 @@
+import json
 import sys  # sys нужен для передачи argv в QApplication
 import os  # Отсюда нам понадобятся методы для отображения содержимого директорий
+
+import requests
 from PyQt5 import QtWidgets
 
 from gui_main_window import Ui_Dialog as Design
-from database import MediaDB
 
 
 class MediaOrganizer(QtWidgets.QMainWindow, Design):
@@ -12,24 +14,36 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         # и т.д. в файле design.py
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
-        self.database = MediaDB()
-        self.videos = self.database.get_videos()
+        self.videos = self.api_get_request()
 
         self.fill_library()
 
         self.video_index = None
-        print(self.video_index)
 
         self.listWidget_library.itemClicked.connect(self.library_item_clicked_event)
         self.checkBox_autosave.stateChanged.connect(self.set_auto_save)
-        self.pushButton_save.clicked.connect(self.change_video_info)
+        self.pushButton_save.clicked.connect(self.save_video_info_changes)
+        self.pushButton.clicked.connect(self.rename_video)
+
+    def api_get_request(self, *args, **kwargs):
+        if kwargs.items():
+            for k, v in kwargs.items():
+                r = requests.get('http://127.0.0.1:5000/bar', {k: v})
+                return r.json()
+        else:
+            r = requests.get('http://127.0.0.1:5000/bar')
+            return r.json()
+
+    def api_put_request(self, video_id, changes_dict):
+        changes_str = json.dumps(changes_dict)
+        r = requests.put('http://127.0.0.1:5000/bar', {'video_id': video_id, 'changes_dict': changes_str})
 
     def fill_library(self):
         self.listWidget_library.addItems(self.videos.values())
 
     def library_item_clicked_event(self):
         self.video_index = self.listWidget_library.currentRow()
-        video_info = self.database.get_video_info(list(self.videos)[self.video_index])
+        video_info = self.api_get_request(video_id=list(self.videos)[self.video_index])
         if video_info[1] is True:
             self.checkBox_our_lib.setChecked(True)
         else:
@@ -47,16 +61,13 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         elif video_info[3] == 3:
             self.radioButton_anime.setChecked(True)
 
-        print(video_info)
-
     def set_auto_save(self):
         if self.checkBox_autosave.isChecked():
             self.pushButton_save.setHidden(True)
         else:
             self.pushButton_save.setHidden(False)
 
-    def change_video_info(self):
-        # database.change_row('1820', name='ljlh111h', our_lib='false')
+    def save_video_info_changes(self):
         if self.checkBox_our_lib.isChecked():
             our_lib = 'true'
         else:
@@ -73,20 +84,24 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
             categories_id = 2
         elif self.radioButton_anime.isChecked():
             categories_id = 3
-            
-        self.database.change_row(
-            list(self.videos)[self.video_index],
-            our_lib=our_lib,
-            moms_lib=moms_lib,
-            categories_id=categories_id
-        )
+
+        changes_dict = {
+            'our_lib': our_lib,
+            'moms_lib': moms_lib,
+            'categories_id': categories_id
+        }
+        self.api_put_request(list(self.videos)[self.video_index], changes_dict)
 
     def rename_video(self):
         # TODO добавить проверку имени на наличие дубликатов
-        pass
+        changes_dict = {
+            'name': '777',
+            'our_lib': 'false',
+            'moms_lib': 'false',
+            'categories_id': '2'
+        }
+        self.api_put_request(list(self.videos)[self.video_index], changes_dict)
         
-        print(list(self.videos)[self.video_index])
-
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
