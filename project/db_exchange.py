@@ -129,14 +129,45 @@ class MediaDB(metaclass=SingletonMeta):
 class CategoriesDB:
     table_name = 'categories'
 
+    def __init__(self):
+        with open(path_to_json_config, 'r') as f:
+            data = json.loads(f.read())
+            self.host = data['postgres']['host']
+            self.port = data['postgres']['port']
+            self.user = data['postgres']['user']
+            self.password = data['postgres']['password']
+            self.database = data['postgres']['database']
+
+    def psycopg2_connect(self):
+        return psycopg2.connect(database=self.database,
+                                user=self.user,
+                                password=self.password,
+                                host=self.host,
+                                port=self.port)
+
     def get_all_categories(self):
-        db_conn = psycopg2_connect()
+        db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        # cur.executemany(f'SELECT id, name FROM {self.table_name} ORDER BY id')
-
-        results = [r[0] for r in cur.fetchall()]
+        cur.execute(f'SELECT id, name_ru FROM {self.table_name} ORDER BY id;')
+        results = {r[0]: r[1] for r in cur.fetchall()}
         return results
+
+    def add_category(self, name, name_ru):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        cur.execute(f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru};")
+        db_conn.commit()
+        db_conn.close()
+
+    def delete_category(self, lib_id):
+        db_conn = self.psycopg2_connect()
+
+        cur = db_conn.cursor()
+        cur.execute(f"DELETE FROM {self.table_name} WHERE id = {lib_id};")
+        db_conn.commit()
+        db_conn.close()
         
 
 class LibrariesDB:

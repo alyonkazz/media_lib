@@ -3,7 +3,7 @@ import json
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 
-from db_exchange import MediaDB, LibrariesDB
+from db_exchange import MediaDB, LibrariesDB, CategoriesDB
 
 app = Flask(__name__)
 api = Api(app)
@@ -51,7 +51,7 @@ class APILibrariesVer1(Resource):
     def get(self):
         return self.database.get_all_libraries()
 
-    def push(self):
+    def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str)
         parser.add_argument('name_ru', type=str)
@@ -64,12 +64,20 @@ class APILibrariesVer1(Resource):
 
 class APICategoriesVer1(Resource):
     def __init__(self):
-        self.database = LibrariesDB()
+        self.database = CategoriesDB()
 
     def get(self):
+        return self.database.get_all_categories()
+
+    def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('video_id', type=str)
-        parser.add_argument('category_id', type=str)
+        parser.add_argument('name', type=str)
+        parser.add_argument('name_ru', type=str)
+
+        name = parser.parse_args()['name']
+        name_ru = parser.parse_args()['name_ru']
+
+        return self.database.add_category(name, name_ru)
 
 
 api.add_resource(APIMediaLibVer1, '/api/v1/media')

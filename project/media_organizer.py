@@ -38,6 +38,7 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
 
         self.menu()
         self.libraries()
+        self.categories()
 
     def menu(self):
 
@@ -64,21 +65,12 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
     def menu_settings(self):
         pass
 
-    def categories(self):
-        pass
-        # get_categories
-        # self.radioButton_serial = QtWidgets.QRadioButton(self.groupBox_2)
-        # self.radioButton_serial.setGeometry(QtCore.QRect(10, 20, 82, 17))
-        # self.radioButton_serial.setObjectName("radioButton_serial")
-
     def libraries(self):
         libraries_r = requests.get('http://127.0.0.1:5000/api/v1/libraries')
         libraries_json = libraries_r.json()
         checkBox_height_basic = 156
         checkBox_height_step = 24
-        # checkBox_1 = QtWidgets.QCheckBox("Awesome?", self)
-        # checkBox_1.setGeometry(QtCore.QRect(310, 234, 121, 21))
-        # checkBox_1.setObjectName("checkBox_moms_lib")
+
         if libraries_json:
             for library in libraries_json.values():
                 checkBox_height_basic = checkBox_height_basic + checkBox_height_step
@@ -86,24 +78,40 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
                 checkBox = QtWidgets.QCheckBox(library, self)
                 checkBox.setGeometry(QtCore.QRect(310, checkBox_height_basic, 121, 21))
                 # checkBox.setObjectName("checkBox_moms_lib")
-                print(library)
 
-            print(libraries_json)
-            print(list(libraries_json))
-
-        btn1 = QtWidgets.QPushButton("Добавить\nбиблиотеку", self)
-        btn1.setGeometry(QtCore.QRect(310, checkBox_height_basic + checkBox_height_step, 121, 42))
+        btn_add_new_library = QtWidgets.QPushButton("Добавить\nбиблиотеку", self)
+        btn_add_new_library.setGeometry(QtCore.QRect(310, checkBox_height_basic + checkBox_height_step, 121, 42))
         # TODO добавить расстояние между иконкой и текстом
-        btn1.setIcon(QIcon('static/add.png'))
-        btn1.clicked.connect(self.add_library)
+        btn_add_new_library.setIcon(QIcon('static/add.png'))
+        btn_add_new_library.clicked.connect(self.add_new_library)
 
-    def add_library(self):
-        # r = requests.get('http://127.0.0.1:5000/api/v1/libraries')
-        self.win_add = AddNew()
+    def categories(self):
+        categories_r = requests.get('http://127.0.0.1:5000/api/v1/categories')
+        categories_json = categories_r.json()
+        checkBox_height_basic = 20
+        checkBox_height_step = 20
+
+        if categories_json:
+            for category in categories_json.values():
+                checkBox_height_basic = checkBox_height_basic + checkBox_height_step
+
+                radioButton = QtWidgets.QRadioButton(category, self.groupBox_2)
+                radioButton.setGeometry(QtCore.QRect(10, checkBox_height_basic, 82, 17))
+                # radioButton.setObjectName("radioButton_serial")
+
+        btn_add_new_category = QtWidgets.QPushButton("Добавить\nкатегорию", self)
+        btn_add_new_category.setGeometry(QtCore.QRect(460, checkBox_height_basic + checkBox_height_step, 121, 42))
+        # TODO добавить расстояние между иконкой и текстом
+        btn_add_new_category.setIcon(QIcon('static/add.png'))
+        btn_add_new_category.clicked.connect(self.add_new_category)
+
+    def add_new_library(self):
+        self.win_add = AddNew('libraries')
         self.win_add.show()
 
     def add_new_category(self):
-        pass
+        self.win_add = AddNew('categories')
+        self.win_add.show()
 
     def api_get_request(self, *args, **kwargs):
         if kwargs.items():
