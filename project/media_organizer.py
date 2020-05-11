@@ -6,6 +6,9 @@ from gui_main_window import Ui_Dialog as Design
 from database import MediaDB
 
 
+"""
+ДЕКОРАТОР
+"""
 def get_film_info(func):
     def check_film_info(func_arg1, func_arg12, checkBox_our_lib):
         print()
