@@ -35,7 +35,7 @@ class CheckDB:
         con = None
         try:
             con = self.psycopg2_connect()
-            logger.debug('connect to db success')
+            logger.debug(f'connect to database {self.database} success')
 
         except psycopg2.Error as e:
             logger.critical(e)
@@ -46,7 +46,7 @@ class CheckDB:
                 con.close()
 
     def try_connect_to_tables(self):
-        table_names = ['media_library', 'group', 'libraries', 'categories', 'folders']
+        table_names = ['mediafiles', 'mediafiles_libs', 'libraries', 'categories', 'folders']
         for table_name in table_names:
             self.check_table(table_name)
 

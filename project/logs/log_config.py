@@ -9,7 +9,6 @@ with open('config.json', 'r') as f:
     LOG_FILE_ERROR = data['logs']['error']
     LOG_FILE_GENERAL = data['logs']['general']
 
-print('dir', LOG_FILE_DEBUG)
 ENCODING = 'utf-8'
 
 

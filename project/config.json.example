@@ -4,6 +4,12 @@
     "port": "",
     "user": "",
     "password": "",
-    "database": "",
+    "database": ""
+  },
+  "logs": {
+    "path": "logs",
+    "debug": "debug.log",
+    "error": "error.log",
+    "general": "general.log"
   }
 }
