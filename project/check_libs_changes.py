@@ -18,6 +18,25 @@ def check_new_videos():
                     'categories_id': str(i+1)
                 })
 
+# import os.path, time
+# print "last modified: %s" % time.ctime(os.path.getmtime(file))
+
+# import os
+# import datetime
+#
+#
+# def filter_by_date(src_folder, archive_date):
+#     os.chdir(src_folder)
+#     return [
+#         name for name in os.listdir('.')
+#         if os.path.isdir(name)
+#         and datetime.fromtimestamp(os.path.getmtime(name)) > archive_date
+#     ]
+#
+#
+# if __name__ == '__main__':
+#     print filter_by_date("C:\Users\Test\Desktop\Folder", datetime.datetime(2016, 11, 10))
+
 
 if __name__ == "__main__":
     check_new_videos()

@@ -60,7 +60,7 @@ class MediaDB(metaclass=SingletonMeta):
         values = '\", \"'.join(new_row_dict.values())
         values = values.replace('\'', '\'\'').replace('\"', '\'')
 
-        do_it = f"INSERT INTO mediafiles ({columns}) VALUES ('{values}');"
+        do_it = f"INSERT INTO mediafiles ({columns}) VALUES ('{values}')"
         cur.execute(do_it)
         db_conn.commit()
         db_conn.close()
@@ -78,18 +78,22 @@ class MediaDB(metaclass=SingletonMeta):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        cur.execute(f'SELECT categories_path FROM {self.table_categories} ORDER BY id;')
+        cur.execute(f'SELECT categories_path FROM {self.table_categories} ORDER BY id')
         results = [r[0] for r in cur.fetchall()]
         return results
 
-    def get_videos(self):
+    def get_all_videos(self):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
         # TODO заменить сортировку - по названию
         cur.execute(f'SELECT id, name FROM mediafiles ORDER BY id;')
-        results = {r[0]: r[1] for r in cur.fetchall()}
-        return results
+        # results = {r[0]: r[1] for r in cur.fetchall()}
+        return {
+            'all_videos':
+                [dict(zip([column[0] for column in cur.description], row))
+                 for row in cur.fetchall()]
+        }
 
     def get_videos_by_category(self, category_id):
         db_conn = self.psycopg2_connect()
@@ -149,15 +153,34 @@ class CategoriesDB:
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        cur.execute(f'SELECT id, name_ru FROM {self.table_name} ORDER BY id;')
-        results = {r[0]: r[1] for r in cur.fetchall()}
-        return results
+        cur.execute(f'SELECT * FROM {self.table_name} ORDER BY id;')
+        return {
+            'all_categories':
+                [dict(zip([column[0] for column in cur.description], row))
+                 for row in cur.fetchall()]
+        }
 
     def add_category(self, name, name_ru):
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        cur.execute(f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru};")
+        ins = f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru} returning id"
+        cur.execute(ins)
+        cat_id = cur.fetchall()[0][0]
+
+        database_libs = LibrariesDB()
+        all_libraries = database_libs.get_all_libraries()
+        if all_libraries:
+            for library_id in all_libraries:
+                ins_lib = f"INSERT INTO folders (libraries_id, categories_id, path) " \
+                          f"VALUES ({library_id}, {cat_id}, 'sfdsf')"
+                cur.execute(ins_lib)
+
+        else:
+            print(2222)
+
+        # print(list(all_libraries)[5])
+
         db_conn.commit()
         db_conn.close()
 
@@ -168,7 +191,7 @@ class CategoriesDB:
         cur.execute(f"DELETE FROM {self.table_name} WHERE id = {lib_id};")
         db_conn.commit()
         db_conn.close()
-        
+
 
 class LibrariesDB:
     table_name = 'libraries'
@@ -193,9 +216,13 @@ class LibrariesDB:
         db_conn = self.psycopg2_connect()
 
         cur = db_conn.cursor()
-        cur.execute(f'SELECT id, name_ru FROM {self.table_name} ORDER BY id;')
-        results = {r[0]: r[1] for r in cur.fetchall()}
-        return results
+        cur.execute(f'SELECT * FROM {self.table_name} ORDER BY id;')
+
+        return {
+            'all_libraries':
+                [dict(zip([column[0] for column in cur.description], row))
+                 for row in cur.fetchall()]
+        }
 
     def add_library(self, name, name_ru):
         db_conn = self.psycopg2_connect()
@@ -230,14 +257,15 @@ if __name__ == "__main__":
     #     "categories_id": "2"
     # }
     # print(get_column('*')[13])
-    # print(database.get_videos())
+    print(database.get_all_videos())
     # print(database.get_video_info(1816))
 
-    database_libs = LibrariesDB()
-    # database_libs.add_library('serials', 'сериалы')
+    # database_libs = LibrariesDB()
+    # database_libs.add_library('new', 'новая')
     # print(database_libs.get_all_libraries())
-    database_libs.delete_library(2)
-    print(database_libs.get_all_libraries())
+    # database_libs.delete_library(2)
+    # print(database_libs.get_all_libraries())
 
     # database_cats = CategoriesDB()
+    # database_cats.add_category('serials', 'сериалы')
     # print(database_cats.get_all_categories())

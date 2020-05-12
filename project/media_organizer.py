@@ -72,7 +72,8 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         checkBox_height_step = 24
 
         if libraries_json:
-            for library in libraries_json.values():
+            for library in [libraries_json['all_libraries'][i]['name_ru']
+                            for i in range(len(libraries_json['all_libraries']))]:
                 checkBox_height_basic = checkBox_height_basic + checkBox_height_step
 
                 checkBox = QtWidgets.QCheckBox(library, self)
@@ -92,7 +93,8 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         checkBox_height_step = 20
 
         if categories_json:
-            for category in categories_json.values():
+            for category in [categories_json['all_categories'][i]['name_ru']
+                             for i in range(len(categories_json['all_categories']))]:
                 checkBox_height_basic = checkBox_height_basic + checkBox_height_step
 
                 radioButton = QtWidgets.QRadioButton(category, self.groupBox_2)
@@ -189,7 +191,7 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
             'categories_id': '2'
         }
         self.api_put_request(list(self.videos)[self.video_index], changes_dict)
-        
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication

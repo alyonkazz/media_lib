@@ -22,7 +22,7 @@ class APIMediaLibVer1(Resource):
         category_id = parser.parse_args()['category_id']
 
         if not video_id and not category_id:
-            return self.database.get_videos()
+            return self.database.get_all_videos()
         elif video_id:
             return self.database.get_video_info(video_id)
         elif category_id:
