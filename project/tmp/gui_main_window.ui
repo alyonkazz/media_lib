@@ -41,58 +41,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>460</x>
-     <y>160</y>
-     <width>120</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Категория</string>
-   </property>
-   <widget class="QRadioButton" name="radioButton_serial">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Сериал</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_film">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Фильм</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_anime">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Анимэ</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QPushButton" name="pushButton_save">
    <property name="geometry">
     <rect>
@@ -109,8 +57,8 @@
   <widget class="QCheckBox" name="checkBox_autosave">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>10</y>
+     <x>490</x>
+     <y>30</y>
      <width>101</width>
      <height>31</height>
     </rect>
@@ -162,16 +110,81 @@
     <string>Переименовать</string>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
+  <widget class="QWidget" name="verticalLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>160</y>
+     <width>121</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_cats_main">
+    <item>
+     <widget class="QGroupBox" name="groupBox_cats">
+      <property name="title">
+       <string>Категории</string>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>101</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_cats"/>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_add_cat">
+      <property name="text">
+       <string>Добавить
+категорию</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>170</y>
+     <y>160</y>
      <width>160</width>
-     <height>61</height>
+     <height>151</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout"/>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QPushButton" name="pushButton_add_lib">
+      <property name="text">
+       <string>Добавить
+библиотеку</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QGroupBox" name="groupBox_libs">
+      <property name="title">
+       <string>Библиотеки</string>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>121</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_libs"/>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

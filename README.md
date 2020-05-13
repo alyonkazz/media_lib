@@ -1,4 +1,4 @@
-pyuic5 gui_main_window.ui -o gui_main_window.py
+pyuic5 tmp\gui_main_window.ui -o gui_main_window.py
 
 #TODO автотегирование по адресу папки/файла
 #TODO в случае смены категории через интерфейс поменять папку

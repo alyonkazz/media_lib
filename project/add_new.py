@@ -1,6 +1,5 @@
 import requests
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5 import QtWidgets
 
 from gui_add_new import Ui_Dialog_add_new as Design
 from logs.log_config import logger
@@ -30,13 +29,18 @@ class AddNew(QtWidgets.QMainWindow, Design):
                               {'name': name, 'name_ru': name_ru})
 
             if r.status_code == 200:
-                self.parent.refresh_libs()
+                self.parent.refresh_layout(self.type_to_add)
             else:
                 logger.error(r)
 
         elif self.type_to_add == 'categories' and name and name_ru:
             r = requests.post('http://127.0.0.1:5000/api/v1/categories',
                               {'name': name, 'name_ru': name_ru})
+
+            if r.status_code == 200:
+                self.parent.refresh_layout(self.type_to_add)
+            else:
+                logger.error(r)
 
         self.close()
 

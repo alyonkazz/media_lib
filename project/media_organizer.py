@@ -1,28 +1,13 @@
 import json
 import sys  # sys нужен для передачи argv в QApplication
-import os  # Отсюда нам понадобятся методы для отображения содержимого директорий
-import time
 
 import requests
-import transliterate
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QPushButton
-from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
 from PyQt5.QtGui import QIcon
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QAction
 
 from add_new import AddNew
 from gui_main_window import Ui_Dialog as Design
-
-
-def clear_layout(layout):
-    if layout is not None:
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                clear_layout(child.layout())
 
 
 class MediaOrganizer(QtWidgets.QMainWindow, Design):
@@ -76,54 +61,57 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         libraries_json = libraries_r.json()
 
         if libraries_json:
-            verticalLayoutWidget_height = 61
-            verticalLayoutWidget_height_step = 20
-            libs_count = len(libraries_json['all_libraries'])
-            verticalLayoutWidget_height += verticalLayoutWidget_height_step * libs_count
-            self.verticalLayoutWidget.setGeometry(QtCore.QRect(290, 170, 160, verticalLayoutWidget_height))
             for library in [libraries_json['all_libraries'][i]['name_ru']
                             for i in range(len(libraries_json['all_libraries']))]:
-                checkbox = QtWidgets.QCheckBox(library)
-                self.verticalLayout.addWidget(checkbox)
+                checkbox = QtWidgets.QCheckBox(self.verticalLayoutWidget)
+                checkbox.setText(library)
+                self.verticalLayout_libs.addWidget(checkbox)
 
-        btn_add_new_library = QtWidgets.QPushButton("Добавить\nбиблиотеку", self)
-        # TODO добавить расстояние между иконкой и текстом
-        btn_add_new_library.setIcon(QIcon('static/add.png'))
-        btn_add_new_library.clicked.connect(self.add_new_library)
-        self.verticalLayout.addWidget(btn_add_new_library)
+        self.pushButton_add_lib.setIcon(QIcon('static/add.png'))
+        self.pushButton_add_lib.clicked.connect(self.add_new_library)
 
     def categories(self):
+        # TODO добавить скролл
         categories_r = requests.get('http://127.0.0.1:5000/api/v1/categories')
         categories_json = categories_r.json()
-        checkBox_height_basic = 20
-        checkBox_height_step = 20
+
+        self.verticalLayout_cats.setSizeConstraint(self.verticalLayout_cats.SetFixedSize)
 
         if categories_json:
             for category in [categories_json['all_categories'][i]['name_ru']
                              for i in range(len(categories_json['all_categories']))]:
-                checkBox_height_basic = checkBox_height_basic + checkBox_height_step
+                radioButton = QtWidgets.QRadioButton(self.verticalLayoutWidget_2)
+                radioButton.setText(category)
+                self.verticalLayout_cats.addWidget(radioButton)
 
-                radioButton = QtWidgets.QRadioButton(category, self.groupBox_2)
-                radioButton.setGeometry(QtCore.QRect(10, checkBox_height_basic, 82, 17))
-                # radioButton.setObjectName("radioButton_serial")
-
-        btn_add_new_category = QtWidgets.QPushButton("Добавить\nкатегорию", self)
-        btn_add_new_category.setGeometry(QtCore.QRect(460, checkBox_height_basic + checkBox_height_step, 121, 42))
-        # TODO добавить расстояние между иконкой и текстом
-        btn_add_new_category.setIcon(QIcon('static/add.png'))
-        btn_add_new_category.clicked.connect(self.add_new_category)
+        self.pushButton_add_cat.setIcon(QIcon('static/add.png'))
+        self.pushButton_add_cat.clicked.connect(self.add_new_category)
 
     def add_new_library(self):
         self.win_add = AddNew(self, 'libraries')
         self.win_add.show()
 
-    def refresh_libs(self):
-        clear_layout(self.verticalLayout)
-        self.libraries()
-
     def add_new_category(self):
         self.win_add = AddNew(self, 'categories')
         self.win_add.show()
+
+    def refresh_layout(self, type_to_refresh):
+
+        if type_to_refresh == 'categories':
+            while self.verticalLayout_cats.count():
+                child = self.verticalLayout_cats.takeAt(0)
+                if child.widget() is not None:
+                    child.widget().deleteLater()
+
+            self.categories()
+
+        elif type_to_refresh == 'libraries':
+            while self.verticalLayout_libs.count():
+                child = self.verticalLayout_libs.takeAt(0)
+                if child.widget() is not None:
+                    child.widget().deleteLater()
+
+            self.libraries()
 
     def api_get_request(self, *args, **kwargs):
         if kwargs.items():

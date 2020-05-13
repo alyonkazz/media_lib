@@ -1,6 +1,7 @@
 import json
-
 import psycopg2
+
+from logs.log_config import logger
 
 path_to_json_config = 'config.json'
 
@@ -166,6 +167,7 @@ class CategoriesTable:
         cur = db_conn.cursor()
         ins = f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru} returning id"
         cur.execute(ins)
+        db_conn.commit()
 
         folders_table(cur)
 
@@ -217,6 +219,7 @@ class LibrariesTable:
 
         cur = db_conn.cursor()
         cur.execute(f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru};")
+        db_conn.commit()
 
         folders_table(cur)
 
@@ -251,10 +254,13 @@ def folders_table(cur):
                 check_row = f'SELECT * FROM folders WHERE libraries_id = {lib_id} AND categories_id = {cat_id}'
                 cur.execute(check_row)
                 check_row_answer = cur.fetchall()
+                logger.debug(f'{check_row_answer} for {check_row}')
+
                 if not check_row_answer:
                     ins = f"INSERT INTO folders (libraries_id, categories_id, path) " \
                           f"VALUES ({lib_id}, {cat_id}, '{path}')"
                     cur.execute(ins)
+                    logger.info(ins)
 
 
 if __name__ == "__main__":
