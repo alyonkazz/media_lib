@@ -130,7 +130,7 @@ class MediaDB(metaclass=SingletonMeta):
         pass
 
 
-class CategoriesDB:
+class CategoriesTable:
     table_name = 'categories'
 
     def __init__(self):
@@ -166,20 +166,8 @@ class CategoriesDB:
         cur = db_conn.cursor()
         ins = f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru} returning id"
         cur.execute(ins)
-        cat_id = cur.fetchall()[0][0]
 
-        database_libs = LibrariesDB()
-        all_libraries = database_libs.get_all_libraries()
-        if all_libraries:
-            for library_id in all_libraries:
-                ins_lib = f"INSERT INTO folders (libraries_id, categories_id, path) " \
-                          f"VALUES ({library_id}, {cat_id}, 'sfdsf')"
-                cur.execute(ins_lib)
-
-        else:
-            print(2222)
-
-        # print(list(all_libraries)[5])
+        folders_table(cur)
 
         db_conn.commit()
         db_conn.close()
@@ -193,7 +181,7 @@ class CategoriesDB:
         db_conn.close()
 
 
-class LibrariesDB:
+class LibrariesTable:
     table_name = 'libraries'
 
     def __init__(self):
@@ -229,6 +217,9 @@ class LibrariesDB:
 
         cur = db_conn.cursor()
         cur.execute(f"INSERT INTO {self.table_name} (name, name_ru) VALUES {name, name_ru};")
+
+        folders_table(cur)
+
         db_conn.commit()
         db_conn.close()
 
@@ -241,31 +232,49 @@ class LibrariesDB:
         db_conn.close()
 
 
+def folders_table(cur):
+    database_libs = LibrariesTable()
+    database_cats = CategoriesTable()
+
+    all_libraries = database_libs.get_all_libraries()
+    all_categories = database_cats.get_all_categories()
+
+    if all_libraries['all_libraries'] and all_categories['all_categories']:
+        for i_lib in range(len(all_libraries['all_libraries'])):
+            for i_cat in range(len(all_categories['all_categories'])):
+                lib_id = all_libraries['all_libraries'][i_lib]['id']
+                cat_id = all_categories['all_categories'][i_cat]['id']
+                path = f"Z:\\Plex\\" \
+                       f"{all_libraries['all_libraries'][i_lib]['name']}" \
+                       f"_{all_categories['all_categories'][i_cat]['name']}"
+
+                check_row = f'SELECT * FROM folders WHERE libraries_id = {lib_id} AND categories_id = {cat_id}'
+                cur.execute(check_row)
+                check_row_answer = cur.fetchall()
+                if not check_row_answer:
+                    ins = f"INSERT INTO folders (libraries_id, categories_id, path) " \
+                          f"VALUES ({lib_id}, {cat_id}, '{path}')"
+                    cur.execute(ins)
+
+
 if __name__ == "__main__":
     database = MediaDB()
-
     # new_row = {
     #     'name': "Dredd.2012.HDRip.XviD.2200MB. rip by [Assassin's Creed]",
     #     'categories_id': '1'
     # }
     # database.insert_row(new_row)
-
-    # changes_dict = {
-    #     # "name": "5555",
-    #     "our_lib": "false",
-    #     "moms_lib": "false",
-    #     "categories_id": "2"
-    # }
-    # print(get_column('*')[13])
-    print(database.get_all_videos())
+    # print(database.get_all_videos())
     # print(database.get_video_info(1816))
 
-    # database_libs = LibrariesDB()
-    # database_libs.add_library('new', 'новая')
+    # database_libs = LibrariesTable()
+    # database_libs.add_library('new_4', 'новая_4')
     # print(database_libs.get_all_libraries())
     # database_libs.delete_library(2)
     # print(database_libs.get_all_libraries())
 
-    # database_cats = CategoriesDB()
+    # database_cats = CategoriesTable()
     # database_cats.add_category('serials', 'сериалы')
     # print(database_cats.get_all_categories())
+
+    # folders_table('cur')

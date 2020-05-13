@@ -1,6 +1,8 @@
 import json
 import sys  # sys нужен для передачи argv в QApplication
 import os  # Отсюда нам понадобятся методы для отображения содержимого директорий
+import time
+
 import requests
 import transliterate
 from PyQt5 import QtWidgets
@@ -10,8 +12,17 @@ from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from add_new import AddNew
-from gui_add_new import Ui_Dialog_add_new
 from gui_main_window import Ui_Dialog as Design
+
+
+def clear_layout(layout):
+    if layout is not None:
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                clear_layout(child.layout())
 
 
 class MediaOrganizer(QtWidgets.QMainWindow, Design):
@@ -30,11 +41,6 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         self.checkBox_autosave.stateChanged.connect(self.set_auto_save)
         # self.pushButton_save.clicked.connect(self.save_video_info_changes)
         self.pushButton.clicked.connect(self.rename_video)
-
-        # self.button = QtGui.QPushButton('', self)
-        # self.button.clicked.connect(self.handleButton)
-
-        # self.pushButton.setIcon(QIcon('static/add.png'))
 
         self.menu()
         self.libraries()
@@ -68,23 +74,23 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
     def libraries(self):
         libraries_r = requests.get('http://127.0.0.1:5000/api/v1/libraries')
         libraries_json = libraries_r.json()
-        checkBox_height_basic = 156
-        checkBox_height_step = 24
 
         if libraries_json:
+            verticalLayoutWidget_height = 61
+            verticalLayoutWidget_height_step = 20
+            libs_count = len(libraries_json['all_libraries'])
+            verticalLayoutWidget_height += verticalLayoutWidget_height_step * libs_count
+            self.verticalLayoutWidget.setGeometry(QtCore.QRect(290, 170, 160, verticalLayoutWidget_height))
             for library in [libraries_json['all_libraries'][i]['name_ru']
                             for i in range(len(libraries_json['all_libraries']))]:
-                checkBox_height_basic = checkBox_height_basic + checkBox_height_step
-
-                checkBox = QtWidgets.QCheckBox(library, self)
-                checkBox.setGeometry(QtCore.QRect(310, checkBox_height_basic, 121, 21))
-                # checkBox.setObjectName("checkBox_moms_lib")
+                checkbox = QtWidgets.QCheckBox(library)
+                self.verticalLayout.addWidget(checkbox)
 
         btn_add_new_library = QtWidgets.QPushButton("Добавить\nбиблиотеку", self)
-        btn_add_new_library.setGeometry(QtCore.QRect(310, checkBox_height_basic + checkBox_height_step, 121, 42))
         # TODO добавить расстояние между иконкой и текстом
         btn_add_new_library.setIcon(QIcon('static/add.png'))
         btn_add_new_library.clicked.connect(self.add_new_library)
+        self.verticalLayout.addWidget(btn_add_new_library)
 
     def categories(self):
         categories_r = requests.get('http://127.0.0.1:5000/api/v1/categories')
@@ -108,11 +114,15 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         btn_add_new_category.clicked.connect(self.add_new_category)
 
     def add_new_library(self):
-        self.win_add = AddNew('libraries')
+        self.win_add = AddNew(self, 'libraries')
         self.win_add.show()
 
+    def refresh_libs(self):
+        clear_layout(self.verticalLayout)
+        self.libraries()
+
     def add_new_category(self):
-        self.win_add = AddNew('categories')
+        self.win_add = AddNew(self, 'categories')
         self.win_add.show()
 
     def api_get_request(self, *args, **kwargs):
@@ -129,7 +139,8 @@ class MediaOrganizer(QtWidgets.QMainWindow, Design):
         r = requests.put('http://127.0.0.1:5000/api/v1/media', {'video_id': video_id, 'changes_dict': changes_str})
 
     def fill_library(self):
-        self.listWidget_library.addItems(self.videos.values())
+        pass
+    #     self.listWidget_library.addItems(self.videos.values())
 
     # def library_item_clicked_event(self):
     #     self.video_index = self.listWidget_library.currentRow()

@@ -3,7 +3,7 @@ import json
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 
-from db_exchange import MediaDB, LibrariesDB, CategoriesDB
+from db_exchange import MediaDB, LibrariesTable, CategoriesTable
 
 app = Flask(__name__)
 api = Api(app)
@@ -46,7 +46,7 @@ class APIMediaLibVer1(Resource):
 
 class APILibrariesVer1(Resource):
     def __init__(self):
-        self.database = LibrariesDB()
+        self.database = LibrariesTable()
 
     def get(self):
         return self.database.get_all_libraries()
@@ -64,7 +64,7 @@ class APILibrariesVer1(Resource):
 
 class APICategoriesVer1(Resource):
     def __init__(self):
-        self.database = CategoriesDB()
+        self.database = CategoriesTable()
 
     def get(self):
         return self.database.get_all_categories()

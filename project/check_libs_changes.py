@@ -37,6 +37,10 @@ def check_new_videos():
 # if __name__ == '__main__':
 #     print filter_by_date("C:\Users\Test\Desktop\Folder", datetime.datetime(2016, 11, 10))
 
+# newpath = r'C:\Program Files\arbitrary'
+# if not os.path.exists(newpath):
+#     os.makedirs(newpath)
+
 
 if __name__ == "__main__":
     check_new_videos()
