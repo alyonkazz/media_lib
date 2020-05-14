@@ -1,4 +1,6 @@
 import json
+import os
+
 import psycopg2
 
 from logs.log_config import logger
@@ -14,12 +16,12 @@ with open(path_to_json_config, 'r') as f:
     database = data['postgres']['database']
 
 
-def psycopg2_connect():
-    return psycopg2.connect(database=database,
-                            user=user,
-                            password=password,
-                            host=host,
-                            port=port)
+# def psycopg2_connect():
+#     return psycopg2.connect(database=database,
+#                             user=user,
+#                             password=password,
+#                             host=host,
+#                             port=port)
 
 
 class SingletonMeta(type):
@@ -261,6 +263,7 @@ def folders_table(cur):
                           f"VALUES ({lib_id}, {cat_id}, '{path}')"
                     cur.execute(ins)
                     logger.info(ins)
+                    os.mkdir(path)
 
 
 if __name__ == "__main__":
